@@ -21,3 +21,32 @@ stages:
             tags: |
               $(Build.BuildId)
               latest
+- stage: deploy
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  jobs:
+    - deployment: DeployProxy
+      displayName: Deploy proxy
+      pool:
+        vmImage: 'Ubuntu-16.04'
+      environment: 'production'
+      strategy:
+        runOnce:
+          on:
+            failure:
+              steps:
+                - download: none
+                - task: SSH@0
+                  inputs:
+                    sshEndpoint: 'swarm manager'
+                    runOptions: 'commands'
+                    commands: 'docker service rollback sber-realityshift_proxy'
+                    readyTimeout: '20000'
+          deploy:
+            steps:
+              - download: none
+              - task: SSH@0
+                inputs:
+                  sshEndpoint: 'swarm manager'
+                  runOptions: 'commands'
+                  commands: 'docker service update --image rtuitlab/sber-realityshift-proxy:$(Build.BuildId) sber-realityshift_proxy'
+                  readyTimeout: '20000'
