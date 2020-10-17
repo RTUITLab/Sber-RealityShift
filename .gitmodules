@@ -1,0 +1,6 @@
+[submodule "Front"]
+	path = Front
+	url = https://github.com/RTUITLab/Sber-RealityShift-Front.git
+[submodule "Back"]
+	path = Back
+	url = https://github.com/RTUITLab/Sber-RealityShift-Back.git
